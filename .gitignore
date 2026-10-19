@@ -24,8 +24,11 @@ samples/*
 # DWG enregistrés par AutoCAD pour les tests : ils portent le nom de session de leur auteur ; seules leurs versions
 # DXF sont publiées (les tests qui lisent les DWG sont ignorés s'ils manquent).
 tests/fixtures/*.dwg
-autocad-lt/tests/vide.dwg
 
-# Documents internes (journal de développement, rapports)
+# Outil séparé (script AutoCAD LT), hors de ce projet
+autocad-lt/
+
+# Documents internes (journal de développement, rapports, guide détaillé, comparaisons de tracé)
 TASKS.md
-docs/Rapport de nuit.md
+docs/*
+!docs/images/

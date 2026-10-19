@@ -12,7 +12,7 @@ import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 # Fichiers et dossiers de l'application (le reste n'est pas diffusé).
-INCLUDE = ["index.html", "style.css", "serve.py", "Lancer CAD Viewer.bat", "README.md", "THIRD-PARTY.md", "LICENSE", "src", "vendor", "assets", "autocad-lt"]
+INCLUDE = ["index.html", "style.css", "serve.py", "Lancer CAD Viewer.bat", "README.md", "THIRD-PARTY.md", "LICENSE", "src", "vendor", "assets"]
 EXCLUDE_DIRS = {"__pycache__", "tests", "node_modules", ".git"}
 EXCLUDE_SUFFIXES = {".pyc", ".bak", ".tmp", ".log"}
 

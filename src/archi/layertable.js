@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Motifs de noms à la manière de WCMATCH (AutoCAD) et table de conversion des calques (CSV),
-// au même format que le module AutoCAD LT : Calque source;Calque cible;Couleur;Type de ligne;Epaisseur.
+// format : Calque source;Calque cible;Couleur;Type de ligne;Epaisseur.
 
 const cache = new Map();
 

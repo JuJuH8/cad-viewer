@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Profils de traitement des bases architecte : mêmes clés et mêmes fichiers (.tpp) que le module
-// AutoCAD LT « Traitement de plans » (autocad-lt/), pour partager les réglages entre l'appli et LT.
+// Profils de traitement des bases architecte, enregistrables dans des fichiers .tpp (format texte, lisible
+// aussi par des scripts AutoLISP).
 //
 // Un .tpp est une liste LISP de paires : ("CLÉ" . T), ("CLÉ") pour nil, ("CLÉ" . 4), ("CLÉ" . "texte"),
 // ("CLÉ" 0.0 0.0 0.0) pour une liste, ("COUL_TABLE" (1 . 3) (256 . 8)) pour une liste de paires.
@@ -160,7 +160,7 @@ const realAtom = (x) => (Number.isInteger(x) ? `${x}.0` : String(x));
 const REALS = new Set(['TOL', 'ORIG_PT']);
 
 export function serializeTpp(cfg) {
-  const lines = [';; Profil « Traitement de plans » : modifiable par la commande TP (AutoCAD LT) ou FOND (CAD Viewer)', '('];
+  const lines = [';; Profil « Traitement de plans » (CAD Viewer, commande FOND)', '('];
   for (const [k, v] of Object.entries({ ...defaults(), ...cfg })) lines.push(` ${lispEntry(k, v, REALS.has(k))}`);
   lines.push(')');
   return lines.join('\r\n') + '\r\n';

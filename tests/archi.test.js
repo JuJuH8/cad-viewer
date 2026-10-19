@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Tests des fonds de plan : profils (format .tpp du module AutoCAD LT), table de calques, traitement,
+// Tests des fonds de plan : profils (format .tpp), table de calques, traitement,
 // comparaison de versions, attacher / remplacer / retirer (annulables), index en grille des grosses références.
 import { test, assert } from './harness.js';
 import { Document } from '../src/core/document.js';
@@ -10,7 +10,7 @@ import { compareEntities, changeZones, signature } from '../src/archi/compare.js
 import { attachFond, replaceFond, detachFond, listFonds, fondInserts, compareVersions, cloudZones, unitScale, FOND_LAYER } from '../src/archi/fonds.js';
 import { buildGrid, gridItems } from '../src/render/seggrid.js';
 
-// Profil écrit par le module AutoCAD LT (vl-prin1-to-string), avec accents et listes.
+// Profil écrit par un script AutoLISP (vl-prin1-to-string), avec accents et listes.
 const TPP_LT = `;; Profil « Traitement de plans » : modifiable par la commande TP
 (
  ("LIBERER")
@@ -26,7 +26,7 @@ const TPP_LT = `;; Profil « Traitement de plans » : modifiable par la commande
 )
 `;
 
-test('profils : lecture d’un .tpp écrit par AutoCAD LT', () => {
+test('profils : lecture d’un .tpp écrit par un script AutoLISP', () => {
   const c = parseTpp(TPP_LT);
   assert.equal(c.LIBERER, false);
   assert.equal(c.UNITE, 4);

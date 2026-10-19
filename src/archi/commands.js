@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Commandes et boîte de dialogue « Fonds de plan » : attacher une base architecte, la recharger, la remplacer
-// par une nouvelle version, comparer les versions, la traiter (profils partagés avec le module AutoCAD LT).
+// par une nouvelle version, comparer les versions, la traiter (profils de traitement).
 
 import { loadProfiles, saveProfile, parseTpp, serializeTpp, defaults } from './profiles.js';
 import { parseLayerTable, exportLayerTable } from './layertable.js';
@@ -264,8 +264,8 @@ export function registerFondCommands(editor, { loadDocument, busy = async () => 
         <div class="qto-actions" style="justify-content:flex-start"><button class="btn" data-act="clouds">Nuages de révision</button><button class="btn" data-act="clear-cmp">Effacer la comparaison</button></div></div>` : ''}
       <h3>Attacher une base</h3>
       <div class="fond-row"><label>Profil de traitement <select data-k="profile">${Object.keys(profiles).map((n) => `<option ${n === p.profile ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
-        <button class="btn" data-act="import-tpp" title="Importer un profil du module AutoCAD LT (.tpp)">Importer un profil…</button>
-        <button class="btn" data-act="export-tpp" title="Enregistrer le profil choisi au format .tpp (module AutoCAD LT)">Exporter</button></div>
+        <button class="btn" data-act="import-tpp" title="Importer un profil de traitement (.tpp)">Importer un profil…</button>
+        <button class="btn" data-act="export-tpp" title="Enregistrer le profil choisi (.tpp)">Exporter</button></div>
       <div class="fond-row"><label>Table de calques <span class="muted">${esc(p.tableName || 'aucune')}</span></label>
         <button class="btn" data-act="pick-table">Choisir…</button>${p.tableName ? '<button class="btn" data-act="no-table">Aucune</button>' : ''}
         <label>Unité de la base <select data-k="unit">${UNITS.map(([v, n]) => `<option value="${v}" ${v === p.unit ? 'selected' : ''}>${n}</option>`).join('')}</select></label></div>

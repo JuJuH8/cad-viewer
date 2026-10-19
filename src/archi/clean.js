@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Traitement d'une base architecte avant de l'attacher en fond de plan : mêmes opérations et même
-// rapport que le module AutoCAD LT « Traitement de plans » (profils partagés, voir profiles.js).
+// Traitement d'une base architecte avant de l'attacher en fond de plan (réglages : profils, voir profiles.js).
 // Le document traité est un dessin fraîchement importé : il est modifié directement (pas d'historique).
 
 import { wcmatch, sourceMatches } from './layertable.js';
