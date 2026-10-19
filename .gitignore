@@ -1,0 +1,31 @@
+# Produits de build et de tests
+out/
+dist/
+build/
+*.spec
+__pycache__/
+*.py[cod]
+*.log
+
+# Outils et postes locaux
+.claude/
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# Dessins d'exemple : seuls les fichiers créés pour le projet sont publiés (les dessins d'exemple d'AutoCAD,
+# utilisés par quelques tests s'ils sont copiés ici, et leurs dérivés ne doivent jamais l'être). Les DWG enregistrés
+# par AutoCAD gardent le nom de session de leur auteur : seules les versions DXF sont publiées.
+samples/*
+!samples/Démo MEP.dxf
+!samples/test-minimal.dxf
+
+# DWG enregistrés par AutoCAD pour les tests : ils portent le nom de session de leur auteur ; seules leurs versions
+# DXF sont publiées (les tests qui lisent les DWG sont ignorés s'ils manquent).
+tests/fixtures/*.dwg
+autocad-lt/tests/vide.dwg
+
+# Documents internes (journal de développement, rapports)
+TASKS.md
+docs/Rapport de nuit.md

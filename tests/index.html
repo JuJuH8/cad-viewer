@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Tests CAD Viewer</title>
+  <style>
+    body { font: 13px/1.5 system-ui, sans-serif; margin: 16px; background: #fff; color: #111; }
+    h1 { font-size: 18px; }
+    .ok { color: #166534; }
+    .ko { color: #b91c1c; }
+    pre { margin: 2px 0 8px 18px; white-space: pre-wrap; }
+    small { color: #777; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../vendor/three@0.186.1/build/three.module.js",
+        "three/addons/": "../vendor/three@0.186.1/examples/jsm/",
+        "libredwg-web": "../vendor/@mlightcad/libredwg-web@0.7.14/dist/libredwg-web.js",
+        "dxf-json": "../vendor/@mlightcad/dxf-json@1.2.8/dist/esm/bundle.mjs",
+        "rbush": "../vendor/esm/rbush@4.0.1.mjs"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="out">Exécution…</div>
+  <script type="module">
+    import { run } from './harness.js';
+    const files = (new URLSearchParams(location.search).get('only') || '').split(',').filter(Boolean);
+    const all = ['geom', 'document', 'entities', 'path', 'importer', 'editor', 'dxf', 'mep', 'archi', 'elec', 'blocks', 'plot', 'underlay', 'fonts', 'hatch', 'clip', 'layerstates', 'extract', 'draworder', 'ucs', 'fields', 'acaddyn', 'dimassoc', 'bim'];
+    for (const f of files.length ? files : all) {
+      try { await import(`./${f}.test.js`); } catch (e) {
+        if (!String(e).includes('Failed to fetch')) {
+          const { test } = await import('./harness.js');
+          test(`chargement de ${f}.test.js`, () => { throw e; });
+        }
+      }
+    }
+    run(document.getElementById('out'));
+  </script>
+</body>
+</html>

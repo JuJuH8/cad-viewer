@@ -1,0 +1,115 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Banc d'essai CAD Viewer</title>
+  <style>
+    body { font: 13px/1.5 system-ui, sans-serif; margin: 0; background: #fff; color: #111; display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
+    #log { padding: 12px; overflow: auto; white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    #view { position: relative; }
+    #view canvas { position: absolute; inset: 0; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../vendor/three@0.186.1/build/three.module.js",
+        "three/addons/": "../vendor/three@0.186.1/examples/jsm/",
+        "libredwg-web": "../vendor/@mlightcad/libredwg-web@0.7.14/dist/libredwg-web.js",
+        "dxf-json": "../vendor/@mlightcad/dxf-json@1.2.8/dist/esm/bundle.mjs",
+        "rbush": "../vendor/esm/rbush@4.0.1.mjs"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="log"></div>
+  <div id="view"></div>
+  <script type="module">
+    // Dessin synthétique « type MEP » : N lignes (réseaux), M insertions de blocs (équipements),
+    // des cercles, des polylignes et des textes. Paramètres : ?lines=300000&inserts=20000
+    import { Document } from '../src/core/document.js';
+    import { Renderer } from '../src/render/renderer.js';
+    import { Editor } from '../src/editor/editor.js';
+    import { registerCommands } from '../src/editor/commands.js';
+
+    const q = new URLSearchParams(location.search);
+    const N = +(q.get('lines') || 300000), M = +(q.get('inserts') || 20000), T = +(q.get('texts') || 10000);
+    const out = document.getElementById('log');
+    const results = {};
+    const log = (k, v) => { results[k] = v; out.textContent += `${k} : ${v}\n`; };
+    const time = (k, fn) => { const t0 = performance.now(); const r = fn(); log(k, `${(performance.now() - t0).toFixed(0)} ms`); return r; };
+    const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    log('paramètres', `${N} lignes, ${M} insertions, ${T} textes`);
+    const doc = new Document();
+    let seed = 1;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const SIZE = 200000; // 200 m en mm
+    time('génération du document', () => {
+      doc.addLayer('CVC-SOUFFLAGE', { color: 5 });
+      doc.addLayer('PLB-EF', { color: 3 });
+      doc.addLayer('ELEC', { color: 1 });
+      doc.blocks.set('DIFFUSEUR', {
+        name: 'DIFFUSEUR', base: [0, 0, 0], entities: [
+          { type: 'CIRCLE', layer: '0', color: 0, c: [0, 0, 0], r: 150 },
+          { type: 'LWPOLYLINE', layer: '0', color: 0, pts: [[-300, -300], [300, -300], [300, 300], [-300, 300]], bulges: [0, 0, 0, 0], closed: true, z: 0 },
+          { type: 'LINE', layer: '0', color: 0, p1: [-300, -300, 0], p2: [300, 300, 0] },
+          { type: 'LINE', layer: '0', color: 0, p1: [-300, 300, 0], p2: [300, -300, 0] },
+        ],
+      });
+      const ents = [];
+      const layers = ['CVC-SOUFFLAGE', 'PLB-EF', 'ELEC'];
+      for (let i = 0; i < N; i++) {
+        const x = rnd() * SIZE, y = rnd() * SIZE, len = 200 + rnd() * 3000;
+        const horiz = rnd() < 0.5;
+        ents.push({ type: 'LINE', layer: layers[i % 3], color: 256, p1: [x, y, 0], p2: horiz ? [x + len, y, 0] : [x, y + len, 0] });
+      }
+      for (let i = 0; i < M; i++) {
+        ents.push({ type: 'INSERT', layer: 'CVC-SOUFFLAGE', color: 256, name: 'DIFFUSEUR', p: [rnd() * SIZE, rnd() * SIZE, 0], sx: 1, sy: 1, sz: 1, rot: 0, attribs: [] });
+      }
+      for (let i = 0; i < T; i++) {
+        ents.push({ type: 'TEXT', layer: 'ELEC', color: 256, p: [rnd() * SIZE, rnd() * SIZE, 0], h: 150, rot: 0, text: `Repère ${i}`, align: 'left', valign: 'baseline', wf: 1 });
+      }
+      doc.load(ents);
+    });
+    log('objets', doc.entities.size);
+
+    await frame();
+    const host = document.getElementById('view');
+    const renderer = new Renderer(host);
+    const editor = new Editor(renderer, { print: () => {} });
+    registerCommands(editor);
+    time('construction de la vue (tessellation + paquets + index)', () => { renderer.setDocument(doc); editor.setDocument(doc); });
+    const s = renderer.stats();
+    log('géométrie', `${s.segs} segments, ${s.texts} textes, ${s.chunks} paquets`);
+
+    // Rendu : vue d'ensemble (tous les textes trop petits) puis zoom (textes visibles).
+    const renderTime = (label) => {
+      const t0 = performance.now();
+      for (let i = 0; i < 10; i++) renderer.render(true);
+      log(label, `${((performance.now() - t0) / 10).toFixed(1)} ms / image`);
+    };
+    await frame();
+    renderTime('rendu vue d’ensemble');
+    renderer.fit({ minX: 90000, minY: 90000, maxX: 110000, maxY: 105000 });
+    await frame();
+    renderTime('rendu zoomé (textes lisibles)');
+
+    // Sélection et accrochage
+    const c = renderer.toWorld(renderer.width / 2, renderer.height / 2);
+    time('100 sélections au point (R-tree + distances)', () => { for (let i = 0; i < 100; i++) renderer.pick([c[0] + i * 10, c[1]], 50); });
+    time('100 calculs d’accrochage', () => { for (let i = 0; i < 100; i++) editor.computeCursor([renderer.width / 2 + i, renderer.height / 2]); });
+    time('sélection par fenêtre (zone zoomée)', () => renderer.selectBox({ minX: 90000, minY: 90000, maxX: 110000, maxY: 105000 }, true).length);
+
+    // Modification : une entité, puis 1 000 entités
+    const ids = [...doc.entities.keys()];
+    time('déplacer 1 objet (mise à jour incrémentale)', () => doc.transaction('m', () => doc.modify(ids[5], (e) => { e.p1[0] += 100; e.p2[0] += 100; })));
+    time('déplacer 1 000 objets', () => doc.transaction('m', () => { for (let i = 0; i < 1000; i++) doc.modify(ids[i * 7], (e) => { if (e.p1) { e.p1[0] += 100; e.p2[0] += 100; } else if (e.p) e.p[0] += 100; }); }));
+    time('annuler (1 000 objets)', () => doc.undo());
+    time('masquer un calque', () => doc.transaction('c', () => doc.setLayer('PLB-EF', { on: false })));
+    window.__bench = results;
+    log('terminé', 'ok');
+  </script>
+</body>
+</html>

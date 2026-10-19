@@ -1,0 +1,15 @@
+﻿Calque source;Calque cible;Couleur;Type de ligne;Epaisseur
+A-WALL*;ARCHI-Murs;8;;0.35
+*MUR*;ARCHI-Murs;8;;0.35
+A-DOOR*;ARCHI-Portes;8;;
+*PORTE*;ARCHI-Portes;8;;
+A-GLAZ*;ARCHI-Fenêtres;8;;
+*FENETRE*;ARCHI-Fenêtres;8;;
+A-FLOR-STRS*;ARCHI-Escaliers;8;;
+*ESCALIER*;ARCHI-Escaliers;8;;
+A-FURN*;SUPPRIMER;;;
+*MOBILIER*;SUPPRIMER;;;
+A-ANNO-DIMS*;SUPPRIMER;;;
+*COTATION*;SUPPRIMER;;;
+A-AREA*;SUPPRIMER;;;
+*HACH*;ARCHI-Hachures;9;;

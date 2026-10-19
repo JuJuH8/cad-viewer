@@ -1,0 +1,151 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAD Viewer</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three@0.186.1/build/three.module.js",
+        "three/addons/": "./vendor/three@0.186.1/examples/jsm/",
+        "libredwg-web": "./vendor/@mlightcad/libredwg-web@0.7.14/dist/libredwg-web.js",
+        "dxf-json": "./vendor/@mlightcad/dxf-json@1.2.8/dist/esm/bundle.mjs",
+        "rbush": "./vendor/esm/rbush@4.0.1.mjs"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="logo" aria-hidden="true">CV</span>
+    <div class="doc-title">
+      <span class="eyebrow" id="doc-eyebrow">CAD Viewer</span>
+      <span id="file-label" class="file-label">Nouveau dessin</span>
+    </div>
+    <div class="menu" id="file-menu">
+      <button class="btn" id="file-menu-btn" aria-haspopup="true" aria-expanded="false">Fichier <svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="menu-pop" id="file-menu-pop" role="menu" hidden>
+        <button class="menu-item" id="new-btn" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M12 11v6M9 14h6"/></svg>Nouveau dessin</button>
+        <label class="menu-item" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v3"/><path d="M3 7v12h16l3-9H6l-3 9"/></svg>Ouvrir un DWG ou un DXF…<input id="file-input" type="file" accept=".dwg,.dxf" hidden></label>
+        <hr>
+        <button class="menu-item" id="save-btn" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg>Enregistrer en DXF<span class="kbd">Ctrl+S</span></button>
+        <button class="menu-item" id="save-dwg-btn" role="menuitem" title="Conversion par AutoCAD installé sur ce PC"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg>Enregistrer en DWG 2018</button>
+        <hr>
+        <button class="menu-item" data-cmd="TRACER" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M7 14h10v7H7z"/></svg>Tracer en PDF…</button>
+        <button class="menu-item" data-cmd="PUBLIER" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M7 14h10v7H7z"/></svg>Publier les présentations…</button>
+        <button class="menu-item" data-cmd="EXPORTIFC" role="menuitem"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M8 10.5l4 2.2 4-2.2"/></svg>Exporter en IFC</button>
+        <hr>
+        <span class="menu-label">Exemples</span>
+        <select id="sample-select" title="Fichiers d'exemple"><option value="">Ouvrir un exemple…</option></select>
+      </div>
+    </div>
+    <button class="cmd-search" id="cmd-search" title="Rechercher et lancer une commande (Ctrl+K)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Rechercher une commande</span><span class="kbd-chip">Ctrl K</span></button>
+    <button class="icon-btn" id="view3d-btn" title="Basculer vue 2D / vue 3D"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg><span>Vue 3D</span></button>
+    <button class="icon-btn" id="theme-btn" title="Thème : comme Windows"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Auto</span></button>
+  </header>
+
+  <nav class="ribbon" id="ribbon"></nav>
+
+  <main class="workspace" id="workspace">
+    <div class="dock-rail left" id="rail-left"></div>
+    <div class="dock left" id="dock-left">
+      <section class="panel" data-panel="layers" data-title="Calques">
+        <header class="panel-bar"><h2 class="panel-title">Calques</h2><span class="panel-btns"></span></header>
+        <div class="panel-body tab-body" id="tab-layers">
+        <div class="panel-head">
+          <button id="layer-add" class="link" title="Nouveau calque">+ Nouveau calque</button>
+        </div>
+        <input id="layer-filter" type="search" placeholder="Filtrer les calques">
+        <div class="panel-actions">
+          <button id="layers-all" class="link">Tout afficher</button>
+          <button id="layers-none" class="link">Tout masquer</button>
+          <label class="check"><input id="layers-empty" type="checkbox"> vides</label>
+        </div>
+        <div class="layer-state-row">
+          <select id="layer-state" title="Restaurer un état de calques (ETATCALQUE)" aria-label="État de calques"></select>
+          <button id="layer-state-manage" class="link" title="Gestionnaire des états de calques (ETATCALQUE)">États…</button>
+        </div>
+        <div class="layer-head"><span title="Calque courant"></span><span>Nom</span><span title="Activé"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span><span title="Gelé"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4.9 7l14.2 10M4.9 17L19.1 7"/></svg></span><span title="Verrouillé"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><span></span></div>
+        <ul id="layer-list" class="layer-list"></ul>
+      </div>
+      </section>
+      <section class="panel" data-panel="xrefs" data-title="Références">
+        <header class="panel-bar"><h2 class="panel-title">Références</h2><span id="xref-count" class="badge" hidden></span><span class="panel-btns"></span></header>
+        <div class="panel-body tab-body" id="tab-xrefs">
+        <div class="panel-head">
+          <button id="xref-attach" class="link" title="Attacher un DWG, DXF ou IFC (fond de plan)">+ Attacher</button>
+          <button id="xref-attach-pdf" class="link" title="Joindre un PDF ou une image en fond (ATTACHER)">+ PDF / image</button>
+        </div>
+        <div class="panel-actions">
+          <button id="xref-reload-all" class="link" title="Relire toutes les références depuis leur fichier">Tout recharger</button>
+          <button id="xref-manager" class="link" title="Gestionnaire complet (profils de traitement, comparaison)">Gestionnaire…</button>
+        </div>
+        <ul id="xref-list" class="xref-list"></ul>
+      </div>
+      </section>
+      <div class="dock-resize" data-side="left" title="Glisser pour élargir"></div>
+    </div>
+
+    <section id="view" class="view">
+      <div id="drop-hint" class="drop-hint">
+        <p><strong>Glissez un fichier DWG ou DXF ici, ou commencez à dessiner</strong></p>
+        <p class="muted">Tapez une commande (L, PL, C…) ou utilisez la barre d'outils</p>
+      </div>
+      <div id="busy" class="busy" hidden><div class="spinner"></div><span id="busy-text">Lecture…</span></div>
+      <div id="recover" class="recover" hidden></div>
+      <section class="cmdline" id="cmdline">
+        <div id="cmd-history" class="cmd-history"></div>
+        <div class="cmd-input-row">
+          <ul id="cmd-suggest" class="cmd-suggest" hidden></ul>
+          <span class="cmd-icon"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7l5 5-5 5"/><path d="M12 17h7"/></svg></span>
+          <span id="cmd-prompt" class="cmd-prompt">Commande :</span>
+          <input id="cmd-input" class="cmd-input" autocomplete="off" spellcheck="false" aria-label="Ligne de commande">
+          <button class="cmd-hist-btn" id="cmd-hist-btn" title="Afficher l'historique (F2)" aria-label="Afficher l'historique"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+        </div>
+      </section>
+    </section>
+
+
+    <div class="dock right" id="dock-right">
+      <div class="dock-resize" data-side="right" title="Glisser pour élargir"></div>
+      <section class="panel" data-panel="props" data-title="Propriétés">
+        <header class="panel-bar"><h2 class="panel-title">Propriétés</h2><span id="sel-count" class="muted"></span><span class="panel-btns"></span></header>
+        <div class="panel-body">
+          <div id="props" class="props"></div>
+        </div>
+      </section>
+      <section class="panel" data-panel="symbols" data-title="Symboles" data-closable="1">
+        <header class="panel-bar"><h2 class="panel-title">Symboles</h2><span class="panel-btns"></span></header>
+        <div class="panel-body" id="symbols-body"></div>
+      </section>
+    </div>
+    <div class="dock-rail right" id="rail-right"></div>
+  </main>
+  <div id="float-layer" class="float-layer"></div>
+
+  <nav class="space-tabs" id="space-tabs" aria-label="Espace objet et présentations"></nav>
+
+  <footer class="statusbar">
+    <span id="coords" class="coords">0.0000, 0.0000</span>
+    <button class="toggle" id="tg-grid" title="Grille (F7)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 12h16M12 4v16"/></svg>Grille</button>
+    <button class="toggle" id="tg-snap" title="Pas d'accrochage (F9)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="18" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="6" cy="18" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="18" cy="18" r="1"/></svg>Pas</button>
+    <button class="toggle" id="tg-osnap" title="Accrochage aux objets (F3)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M6 8h4M14 8h4"/></svg>Accrochage</button>
+    <button class="toggle" id="tg-ortho" title="Mode ortho (F8)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v15h15"/><path d="M5 15h4v4"/></svg>Ortho</button>
+    <button class="toggle" id="tg-polar" title="Repérage polaire (F10)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M4 20L18 6"/><path d="M11 20a7 7 0 0 0-2-5"/></svg>Polaire</button>
+    <button class="toggle" id="tg-lw" title="Afficher les épaisseurs de ligne dans les présentations (LWDISPLAY)"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16" stroke-width="1"/><path d="M4 12h16" stroke-width="2.2"/><path d="M4 18h16" stroke-width="3.4"/></svg>Épaisseurs</button>
+    <button class="toggle" id="tg-otrack" title="Repérage d’accrochage (F11) : survolez un point d’accrochage pour l’acquérir"><svg class="ico-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6M12 15v6M3 12h6M15 12h6" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="3"/></svg>Repérage</button>
+    <span id="stats" class="muted"></span>
+    <span id="autosave" class="muted"></span>
+    <span class="grow"></span>
+    <span id="skipped" class="warn"></span>
+    <button class="toggle" id="xref-btn" hidden title="Choisir les fichiers DWG/DXF des références externes">Charger les xrefs…</button>
+    <input id="xref-input" type="file" accept=".dwg,.dxf" multiple hidden>
+  </footer>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

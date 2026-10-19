@@ -1,0 +1,142 @@
+  0
+LAYERSTATEDICTIONARY
+  0
+LAYERSTATE
+  1
+Complet
+ 91
+255
+301
+
+290
+0
+302
+MURS
+  8
+ÉLEC
+ 90
+8
+ 62
+30
+370
+-3
+  6
+Continuous
+  2
+Color_30
+440
+0
+ 92
+-1023442944
+  8
+TRANSP
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+33554559
+  8
+VPGEL
+ 90
+24
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+NOPLOT
+ 90
+0
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+VERR
+ 90
+12
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+TEXTES
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0
+  8
+GAINES
+ 90
+8
+ 62
+1
+370
+50
+  6
+Continuous
+  2
+Color_1
+440
+0
+  8
+MURS
+ 90
+8
+ 62
+3
+370
+-3
+  6
+Continuous
+  2
+Color_3
+440
+0
+  8
+0
+ 90
+8
+ 62
+7
+370
+-3
+  6
+Continuous
+  2
+Color_7
+440
+0

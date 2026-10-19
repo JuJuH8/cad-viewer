@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Contrôle PDF</title>
+  <style>
+    body { margin: 0; background: #555; display: grid; place-items: center; min-height: 100vh; }
+    canvas { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,.5); max-width: 100vw; height: auto; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script type="module">
+    // Affiche la première page d'un PDF de out/ (?f=nom.pdf), pour contrôler le tracé.
+    import * as pdfjs from '/vendor/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+    pdfjs.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+    const f = new URLSearchParams(location.search).get('f') || 'plan-a3.pdf';
+    const data = await fetch(`/out/${encodeURIComponent(f)}`).then((r) => r.arrayBuffer());
+    const pdf = await pdfjs.getDocument({ data }).promise;
+    const page = await pdf.getPage(1);
+    const vp = page.getViewport({ scale: 2 });
+    const c = document.getElementById('c');
+    c.width = vp.width; c.height = vp.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    document.title = 'PDF prêt';
+  </script>
+</body>
+</html>

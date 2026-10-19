@@ -1,0 +1,20 @@
+# Fichiers de dessin et d'AutoCAD gardés octet pour octet (fins de ligne CRLF, BOM) : comparés par les tests ou lus
+# par AutoCAD tels quels.
+*.dxf -text
+*.las -text
+*.lsp -text
+*.dcl -text
+*.scr -text
+*.csv -text
+*.ifc -text
+*.pat -text
+*.bat text eol=crlf
+# Binaires
+*.dwg binary
+*.wasm binary
+*.ttf binary
+*.pfb binary
+*.bcmap binary
+*.pdf binary
+*.png binary
+*.ico binary
