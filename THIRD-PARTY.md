@@ -24,14 +24,15 @@ fichiers de `vendor/` sont identiques à ceux publiés (aucune modification).
 
 Les composants livrés sous forme compilée ou minifiée sont accompagnés de l'indication de leurs sources :
 
-- **libredwg-web 0.7.14** : sources du paquet (lien depuis sa page npm) et de LibreDWG 0.13.3
-  (<https://www.gnu.org/software/libredwg/>, <https://github.com/LibreDWG/libredwg>, révision 0c9ab).
-- **dxf-json 1.2.8** : sources du paquet (lien depuis sa page npm), version 1.2.8.
-- **web-ifc 0.0.77** : <https://github.com/ThatOpen/engine_web-ifc>, version 0.0.77 (MPL-2.0, § 3.2).
+- **libredwg-web 0.7.14** (avec les sources de LibreDWG 0.13.3 modifiées par l'auteur du paquet) :
+  <https://github.com/mlightcad/libredwg-web>, étiquette `v0.7.14` (révision 1dd682f) ; LibreDWG d'origine :
+  <https://www.gnu.org/software/libredwg/>.
+- **dxf-json 1.2.8** : <https://github.com/mlightcad/dxf-json>, étiquette `v1.2.8` (révision a94d49c).
+- **web-ifc 0.0.77** : <https://github.com/ThatOpen/engine_web-ifc>, révision f26c4be (MPL-2.0, § 3.2).
 - **osifont** : sources FontForge (.sfd) sur <https://github.com/hikikomori82/osifont>.
 
-Pour chaque version publiée de CAD Viewer, une archive de ces sources est à joindre aux fichiers de la version
-(GPL-3.0 § 6), afin qu'elles restent disponibles même si les dépôts d'origine changent.
+Une archive des sources de libredwg-web, dxf-json et osifont est jointe à chaque version publiée de CAD Viewer
+(page « Releases » du dépôt), afin qu'elles restent disponibles même si les dépôts d'origine changent (GPL-3.0 § 6).
 
 ## Version Windows installable
 
